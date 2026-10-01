@@ -29,10 +29,24 @@ jobs:
 
       - name: Analyze
         working-directory: flutter
+        shell: bash
         run: |
           flutter pub get
-          flutter analyze --no-fatal-infos --no-fatal-warnings \
+          set +e
+          dart analyze --format=machine --no-fatal-warnings \
             lib/desktop/pages/neeko_home_page.dart \
             lib/desktop/pages/desktop_home_page.dart \
             lib/common.dart \
-            lib/main.dart
+            lib/main.dart > analyze.txt 2>&1
+          code=$?
+          cat analyze.txt
+          python3 - <<'PY'
+          for line in open('analyze.txt'):
+              p = line.strip().split('|')
+              if len(p) >= 8 and p[0] in ('ERROR', 'WARNING'):
+                  f = p[3].split('/flutter/', 1)[-1]
+                  kind = 'error' if p[0] == 'ERROR' else 'warning'
+                  msg = '|'.join(p[7:]).replace('%', '%25')
+                  print(f"::{kind} file=flutter/{f},line={p[4]},col={p[5]}::{p[2]}: {msg}")
+          PY
+          exit $code
