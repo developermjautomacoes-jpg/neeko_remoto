@@ -1,0 +1,38 @@
+name: NEEKO - Verificar codigo da tela
+
+# Checagem rapida (~10 min) do codigo Flutter, sem compilar o executavel.
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-bridge:
+    uses: ./.github/workflows/bridge.yml
+
+  analyze:
+    needs: [generate-bridge]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Restore bridge files
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: bridge-artifact
+          path: ./
+
+      - name: Install flutter
+        uses: subosito/flutter-action@2783a3f08e1baf891508463f8c6653c258246225 # v2.12.0
+        with:
+          channel: "stable"
+          flutter-version: "3.24.5"
+
+      - name: Analyze
+        working-directory: flutter
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos --no-fatal-warnings \
+            lib/desktop/pages/neeko_home_page.dart \
+            lib/desktop/pages/desktop_home_page.dart \
+            lib/common.dart \
+            lib/main.dart
