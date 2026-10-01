@@ -322,7 +322,7 @@ class _NeekoHomeViewState extends State<NeekoHomeView> {
       ),
       actions: [
         _iconAction(Icons.copy_outlined, 'Copiar ID',
-            () => _copy(model.serverId.id)),
+            () => _copy(model.serverId.text.replaceAll(' ', ''))),
       ],
     );
   }
@@ -382,8 +382,8 @@ class _NeekoHomeViewState extends State<NeekoHomeView> {
                 } else {
                   final pass = showOneTime ? model.serverPasswd.text : '';
                   _copy(pass.isEmpty
-                      ? 'ID: ${model.serverId.id}'
-                      : 'ID: ${model.serverId.id}\nSenha: $pass');
+                      ? 'ID: ${model.serverId.text.replaceAll(' ', '')}'
+                      : 'ID: ${model.serverId.text.replaceAll(' ', '')}\nSenha: $pass');
                 }
               },
             );
